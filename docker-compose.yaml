@@ -2,10 +2,10 @@ version: '3'
 
 services:
   database:
-    image: postgres:15.3
-    container_name: task-db
+    image: postgres
+    container_name: tasks-db
     ports:
-      - 5433:5433
+      - "5432:5432"
     environment:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=postgres
