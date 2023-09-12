@@ -23,7 +23,7 @@ export const ProductsCard = ( {product}: Props ) => {
                 className='btn btn-primary mt-3'
                 href={`/server-side/product/${product.slug}`}
             >
-                Ver Procuto
+                Ver Producto
             </Link>
         </div>
     )
