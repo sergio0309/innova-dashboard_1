@@ -1,21 +1,37 @@
-import { IProduct } from "@/products";
 import { Metadata } from "next";
 import Image from "next/image";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { IProduct, IProductsResponse } from "@/products";
 
 interface Props {
   params: {slug: string}
 }
 
 const getSimpleProductData = async ( slug: string) : Promise <IProduct> => {
-  const {data: product}: {data : IProduct} = await fetch(`https://store.innovacode.online/api/products/${slug}`)
+  try {
+    const {data: product}: {data : IProduct} = await fetch(`https://store.innovacode.online/api/products/${slug}`,{
+      //Para revalidar la pagina cada 60 segundos
+      next: {
+        revalidate: 86400
+      }
+    })
+        
     .then((res) => res.json())
-
-  if(!product){
-    redirect('/server-side')
+      return product;
+  } catch (error) {
+  //  redirect ('/server-side')
+    notFound();
   }
-  return product;
 };
+
+export async function generateStaticParams() {
+  const { data }: IProductsResponse = await fetch("https://store.innovacode.online/api/products")
+  .then( res => res.json());
+
+  return data.map(product => ({
+    slug: product.slug
+  }) ) 
+}
 
 export async function generateMetadata ({params}: Props) : Promise <Metadata>{
   try{
