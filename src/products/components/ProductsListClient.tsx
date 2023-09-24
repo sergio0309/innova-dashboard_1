@@ -21,7 +21,7 @@ export const ProductsListClient = ()  =>{
         <div className='product__list'>
         {
             products?.map(product =>(
-                <ProductsCard product={product}/>
+                <ProductsCard key={product.id} product={product}/>
             ))
         }
         </div>
