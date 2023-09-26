@@ -1,18 +1,18 @@
-import { NextAuthOptions } from "next-auth";
 import NextAuth from "next-auth/next";
+import { NextAuthOptions } from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
-// import { Adapter } from "next-auth/adapters";
 
 import { PrismaClient } from '@prisma/client';
-import { PrismaAdapter } from "@auth/prisma-adapter";
 import { signInWithEmailAndPassword } from "@/auth";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { Adapter } from "next-auth/adapters";
 
 const prisma = new PrismaClient();
 
 export const authOptions: NextAuthOptions={
 
-    adapter: PrismaAdapter(prisma),
+    adapter: PrismaAdapter(prisma) as Adapter,
 
     pages:{
         signIn: '/auth/login',
@@ -51,12 +51,25 @@ export const authOptions: NextAuthOptions={
         },
         async jwt({ token, user, account}){
             // MANEJO DE INFORMACION DEL TOKEN
+            const dbUser = await prisma.user.findUnique({
+                where:{
+                    email: token?.email ?? 'not-available'
+                }
+            });
+
+            token.id = dbUser?.id!;
+
             return token;
         },
-        async session({ newSession, session, token, user}){
+        async session({ newSession, session, token, user}: any){
             // MANEJO DE INFORMACION DE LA SESION EN EL PROYECTO
+
+            if(session && session.user){
+                session.user.id = token.id
+            }
+
             return session;
-        }
+        },
     }
 }
 

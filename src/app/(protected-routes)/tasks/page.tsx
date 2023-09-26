@@ -1,22 +1,28 @@
 //Crear un componente de pagina
 // prc
 
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { NewTaskForm, TaskCard } from "@/tasks";
 import { PrismaClient } from "@prisma/client";
+import { getServerSession } from "next-auth";
 
 export default async function TasksPage() {
 
   const prisma = new PrismaClient();
 
+  const session = await getServerSession(authOptions);
+  
   const pendingTasks = await prisma.task.findMany({
     where: {
-      complete: false
+      complete: false,
+      userId: session?.user?.id
     }
   })
 
   const completedTasks = await prisma.task.findMany({
     where:{
-      complete: true
+      complete: true,
+      userId: session?.user?.id
     }
   })
 

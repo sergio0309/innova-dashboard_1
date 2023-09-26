@@ -1,16 +1,23 @@
 //Guardamos las tareas en este archivo
 'use server'
 
-import { PrismaClient, Task } from "@prisma/client";
+import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
+
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { PrismaClient, Task } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 export const create = async( title: string, description: string,): Promise<Task> => {
+    
+    const session = await getServerSession(authOptions)
+
     const task = await prisma.task.create({
         data: {
             title,
             description,
+            userId: session!.user!.id
         }
     })
 
